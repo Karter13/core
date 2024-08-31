@@ -46,7 +46,7 @@ export function CreateCourseForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((data) => {
-          // @ts-expect-error
+          // @ts-ignore
           startCreateTransition(async () => {
            await createCourseAction(data as CreateCourseListElementCommand, revalidatePagePath);
           });
