@@ -12,9 +12,22 @@ import { LogOut, User } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import Link from "next/link";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { useSingOut } from "@/features/auth/use-sing-out";
+import { SignInButton } from "@/features/auth/sugn-in-button";
+import { useAppSession } from "@/entities/session/use-app-session";
 
 export function Profile() {
+  const session = useAppSession();
+  const { signOut, isPending: isLoadingSignOut } = useSingOut();
+
+  if (session.status === "loading") {
+    return <Skeleton className="h-8 w-8 rounded-full" />;
+  }
+
+  if(session.status === "unauthenticated") {
+    return <SignInButton/>
+  }
 
   return (
     <DropdownMenu>
@@ -24,6 +37,7 @@ export function Profile() {
           className="p-px rounded-full self-center h-8 w-8"
         >
           <Avatar className="h-8 w-8">
+            <AvatarImage src={session.data?.user?.image ?? ""}/>
             <AvatarFallback>AC</AvatarFallback>
           </Avatar>
         </Button>
@@ -32,7 +46,7 @@ export function Profile() {
         <DropdownMenuLabel>
           <p>Мой аккаунт</p>
           <p className="text-xs text-muted-foreground overflow-hidden text-ellipsis">
-            Karamzin
+            {session.data?.user?.name}
           </p>
         </DropdownMenuLabel>
         <DropdownMenuGroup></DropdownMenuGroup>
@@ -45,7 +59,8 @@ export function Profile() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => console.log("click")}
+            disabled={isLoadingSignOut}
+            onClick={() => signOut(undefined, undefined)}
           >
             <LogOut className="mr-2 h-4 w-4" />
             <span>Выход</span>
